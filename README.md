@@ -6,27 +6,22 @@ _Create and run a GitHub Actions workflow._
 
 </header>
 
-## Step 2: Add a job to your workflow file
+## Step 3: Add a step to your workflow file
 
-_Nice work! :tada: You added a workflow file!_
+_Nice work adding a job to your workflow! :dancer:_
 
-Here's what the entries in the `welcome.yml` file, on the `welcome-workflow` branch, mean:
+Workflows have jobs, and jobs have steps. So now we'll add a step to your workflow.
 
-- `name: Post welcome comment` gives your workflow a name. This name will appear in the Actions tab of your repository.
-- `on: pull_request: types: [opened]` indicates that your workflow will execute whenever someone opens a pull request in your repository.
-- `permissions` assigns the workflow permissions to operate on the repository
-- `pull-requests: write` gives the workflow permission to write to pull requests. This is needed to create the welcome comment.
+**What are _steps_?**: Actions steps run - in the order they are specified, from the top down - when a workflow job is processed. Each step must pass for the next step to run.
 
-Next, we need to specify jobs to run.
+Each step consists of either a shell script that's executed, or a reference to an action that's run. When we talk about an action (with a lowercase "a") in this context, we mean a reusable unit of code. You can find out about actions in "[Finding and customizing actions](https://docs.github.com/en/actions/learn-github-actions/finding-and-customizing-actions)," but for now we'll use a shell script in our workflow step.
 
-**What is a _job_?**: A job is a set of steps in a workflow that execute on the same runner (a runner is a server that runs your workflows when triggered). Workflows have jobs, and jobs have steps. Steps are executed in order and are dependent on each other. You'll add steps to your workflow later in the course. To read more about jobs, see "[Jobs](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions#jobs)".
+Update your workflow to make it post a comment on new pull requests. It will do this using a [bash](https://en.wikipedia.org/wiki/Bash_%28Unix_shell%29) script and [GitHub CLI](https://cli.github.com/).
 
-In the following activity, you'll add a "build" job to your workflow. You'll specify `ubuntu-latest` as the fastest, and cheapest, job runner available. If you want to read more about why we'll use that runner, see the code explanation for the line `runs-on: ubuntu-latest` in the "[Understanding the workflow file](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions#understanding-the-workflow-file)" article.
+### :keyboard: Activity: Add a step to your workflow file
 
-### :keyboard: Activity: Add a job to your workflow file
-
-1. In a separate browser tab, make sure you are on the `welcome-workflow` branch and open your `.github/workflows/welcome.yml` file.
-1. Edit the file and update its contents to:
+1. Still working on the `welcome-workflow` branch, open your `welcome.yml` file.
+1. Update the contents of the file to:
 
    ```yaml copy
    name: Post welcome comment
@@ -39,10 +34,17 @@ In the following activity, you'll add a "build" job to your workflow. You'll spe
      build:
        name: Post welcome comment
        runs-on: ubuntu-latest
+       steps:
+         - run: gh pr comment $PR_URL --body "Welcome to the repository!"
+           env:
+             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+             PR_URL: ${{ github.event.pull_request.html_url }}
    ```
 
+   **Note:** The step you've added uses GitHub CLI (`gh`) to add a comment when a pull request is opened. To allow GitHub CLI to post a comment, we set the `GITHUB_TOKEN` environment variable to the value of the `GITHUB_TOKEN` secret, which is an installation access token, created when the workflow runs. For more information, see "[Automatic token authentication](https://docs.github.com/en/actions/security-guides/automatic-token-authentication)." We set the `PR_URL` environment variable to the URL of the newly created pull request, and we use this in the `gh` command.
+   
 1. Click **Commit changes** in the top right of the workflow editor.
-1. Type a commit message and commit your changes directly to the `welcome-workflow` branch.
+1. Type your commit message and commit your changes directly to your branch.
 1. Wait about 20 seconds, then refresh this page (the one you're following instructions from). Another workflow will run and will replace the contents of this README file with instructions for the next step.
 
 <footer>
